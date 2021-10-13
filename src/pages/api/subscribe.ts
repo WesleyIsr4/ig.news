@@ -9,7 +9,7 @@ type User = {
   ref: {
     id: string;
   };
-  data: { stripe_costumer_id: string };
+  data: { stripe_customer_id: string };
 };
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -20,7 +20,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       q.Get(q.Match(q.Index("user_by_email"), q.Casefold(session.user.email)))
     );
 
-    let customerId = user.data.stripe_costumer_id;
+    let customerId = user.data.stripe_customer_id;
 
     if (!customerId) {
       const stripeCustomer = await stripe.customers.create({
@@ -29,7 +29,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
       await fauna.query(
         q.Update(q.Ref(q.Collection("users"), user.ref.id), {
-          data: { stripe_costumer_id: stripeCustomer.id },
+          data: { stripe_customer_id: stripeCustomer.id },
         })
       );
 
